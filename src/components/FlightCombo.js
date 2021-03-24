@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const FlightCombo = ({ options = [], onChange }) => {
+export const FlightCombo = ({ options = [], onChange, value }) => {
     const getOptions = () => {
         return options && options.map((option, key) => {
             return <option value={option}>{option}</option>
@@ -10,7 +10,11 @@ export const FlightCombo = ({ options = [], onChange }) => {
     return (
         <>
             <label htmlFor='flights'>Flight Combo</label>
-            <select id='flights' onChange={(event) => onChange(event)}>
+            <select
+                id='flights'
+                value={value}
+                onChange={(event) => onChange(event)}
+            >
                 {getOptions()}
             </select>
         </>

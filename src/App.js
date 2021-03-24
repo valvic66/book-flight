@@ -3,43 +3,41 @@ import './App.css';
 import { FlightCombo } from './components/FlightCombo';
 import { DateField } from './components/DateField';
 import { SubmitButton } from './components/SubmitButton';
-import moment from 'moment';
-import { FLIGHT_OPTIONS } from './constants/index';
-
+import { FLIGHT_OPTIONS, FLIGHT_OPT } from './constants/index';
+import { isRetDateAfterDepDate, validateDate } from './utils/utils';
 
 function App() {
-  const [departureDate, setDepartureDate] = useState('27.03.2014');
-  const [returnDate, setReturnDate] = useState('27.03.2014');
-  const [isValidDepDate, setDepDateValidation] = useState(true);
-  const [isValidReturnDate, setReturnDateValidation] = useState(true);
-  const [isDepInputFieldDisabled, setDepInputFieldStatus] = useState(false);
-  const [isReturnInputFieldDisabled, setReturnInputFieldStatus] = useState(true);
-  const [isSubmitButtonDisabled, setSubmitButtonStatus] = useState(false);
+  const [ departureDate, setDepartureDate ] = useState('27.03.2014');
+  const [ returnDate, setReturnDate ] = useState('27.03.2014');
+  const [ selectedFlightOption, setSelectedFlightOption ] = useState(FLIGHT_OPTIONS.ONE_WAY);
+  const [ isValidDepDate, setDepDateValidation ] = useState(true);
+  const [ isValidReturnDate, setReturnDateValidation ] = useState(true);
+  const [ isDepInputFieldDisabled, setDepInputFieldStatus ] = useState(false);
+  const [ isReturnInputFieldDisabled, setReturnInputFieldStatus ] = useState(true);
+  const [ isSubmitButtonDisabled, setSubmitButtonStatus ] = useState(false);
   
   const handleFlightComboChange = event => {
-    console.log(event.target.value);
+    setSelectedFlightOption(event.target.value);
+
+    if(event.target.value === FLIGHT_OPTIONS.RETURN_FLIGHT) {
+      setReturnInputFieldStatus(false);
+    } else {
+      setReturnInputFieldStatus(true);
+    }
   };
 
   const handleDepDateChange = event => {
-    validateDepDate(event.target.value);
+    validateDate(event.target.value, setDepDateValidation, setDepartureDate);
   };
+
   const handleReturnDateChange = event => {
-    validateReturnDate(event.target.value);
-  };
+    validateDate(event.target.value, setReturnDateValidation, setReturnDate);
 
-  const validateDepDate = date => {
-    const validDate = moment(date, ['DD.MM.YYYY'], true);
-
-    setDepDateValidation(validDate.isValid());
-    setDepartureDate(date);
-    console.log(validDate.isValid());
-  };
-  const validateReturnDate = date => {
-    const validDate = moment(date, ['DD.MM.YYYY'], true);
-
-    setReturnDateValidation(validDate.isValid());
-    setReturnDate(date);
-    console.log(validDate.isValid());
+    if(isRetDateAfterDepDate(departureDate, event.target.value)) {
+      setSubmitButtonStatus(false);
+    } else {
+      setSubmitButtonStatus(true);
+    }
   };
 
   const handleSubmitClick = () => {
@@ -48,7 +46,11 @@ function App() {
 
   return (
     <div className="App">
-      <FlightCombo options={FLIGHT_OPTIONS} onChange={handleFlightComboChange} />
+      <FlightCombo
+        options={FLIGHT_OPT}
+        value={selectedFlightOption}
+        onChange={handleFlightComboChange}
+      />
 
       <DateField
         onChange={handleDepDateChange}
